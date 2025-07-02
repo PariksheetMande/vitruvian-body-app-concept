@@ -84,3 +84,5 @@ elif page == "Vision & Roadmap":
 
     st.markdown("---")
     st.caption("Symmetriq is evolving. This roadmap outlines our future as we build a trusted, educational tool for aesthetic fitness.")
+    st.caption("Designed by Parikshit Mande")
+
