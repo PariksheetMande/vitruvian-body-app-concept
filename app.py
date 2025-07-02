@@ -14,7 +14,7 @@ height = st.sidebar.number_input("Height (in inches)", min_value=50.0, max_value
 wrist = st.sidebar.number_input("Wrist Circumference (in)", min_value=4.0, max_value=10.0, value=5.5)
 ankle = st.sidebar.number_input("Ankle Circumference (in)", min_value=5.0, max_value=12.0, value=7.5)
 waist = st.sidebar.number_input("Waist Circumference (in)", min_value=20.0, max_value=50.0, value=29.0)
-shoulders_input = st.sidebar.number_input("Current Shoulder Circumference (in) (optional)", min_value=30.0, max_value=70.0, value=0.0)
+shoulders_input = st.sidebar.number_input("Current Shoulder Circumference (in) (optional)", min_value=0.0, max_value=70.0, value=0.0)
 
 # --- Calculations ---
 shoulder_ideal = round(waist * 1.618, 2)
