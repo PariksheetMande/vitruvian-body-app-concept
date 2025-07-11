@@ -94,7 +94,12 @@ if page == "Calculator":
         docs = splitter.create_documents([text])
 
         embeddings = HuggingFaceEmbeddings()
-        vectordb = Chroma.from_documents(docs, embedding=embeddings)
+        vectordb = Chroma.from_documents(
+    docs,
+    embedding=embeddings,
+    persist_directory="/tmp/chroma",  # ✅ /tmp is safe to write in Streamlit Cloud
+)
+
         retriever = vectordb.as_retriever(search_kwargs={"k": 2})
 
         llm = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.2", model_kwargs={"temperature": 0.5, "max_new_tokens": 200})
