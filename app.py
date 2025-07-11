@@ -56,12 +56,14 @@ if page == "Calculator":
             st.success("You have achieved or exceeded the golden ratio V-taper.")
 
     st.markdown("---")
-     # --- AI FITNESS COACH CHATBOT ---
+
+    # --- AI FITNESS COACH CHATBOT ---
     from langchain.embeddings import HuggingFaceEmbeddings
     from langchain.vectorstores import Chroma
     from langchain.text_splitter import CharacterTextSplitter
     from langchain.llms import HuggingFaceHub
     from langchain.chains import RetrievalQA
+    from chromadb.config import Settings
 
     st.markdown("## 🤖 Ask Your AI Fitness Coach")
 
@@ -70,7 +72,7 @@ if page == "Calculator":
         if uploaded_file:
             knowledge_text = uploaded_file.read().decode("utf-8")
         else:
-            # Default example knowledge (replace with your content)
+            # Default fallback knowledge
             knowledge_text = '''
             Q: How often should I work out?
             A: Most people benefit from 3–5 sessions per week depending on goals.
@@ -94,15 +96,22 @@ if page == "Calculator":
         docs = splitter.create_documents([text])
 
         embeddings = HuggingFaceEmbeddings()
+
         vectordb = Chroma.from_documents(
-    docs,
-    embedding=embeddings,
-    persist_directory="/tmp/chroma",  # ✅ /tmp is safe to write in Streamlit Cloud
-)
+            docs,
+            embedding=embeddings,
+            persist_directory=None,  # ✅ In-memory vector store for Streamlit Cloud
+            client_settings=Settings(
+                anonymized_telemetry=False,
+                persist_directory=None
+            )
+        )
 
         retriever = vectordb.as_retriever(search_kwargs={"k": 2})
-
-        llm = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.2", model_kwargs={"temperature": 0.5, "max_new_tokens": 200})
+        llm = HuggingFaceHub(
+            repo_id="mistralai/Mistral-7B-Instruct-v0.2",
+            model_kwargs={"temperature": 0.5, "max_new_tokens": 200}
+        )
         qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
         return qa_chain
 
@@ -142,4 +151,5 @@ elif page == "Vision & Roadmap":
     st.markdown("---")
     st.caption("Symmetriq is evolving. This roadmap outlines our future as we build a trusted, educational tool for aesthetic fitness.")
     st.caption("Designed by Parikshit Mande")
+
 
