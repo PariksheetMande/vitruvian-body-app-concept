@@ -1,3 +1,4 @@
+pip install langchain chromadb sentence-transformers huggingface_hub
 import streamlit as st
 
 # --- Page Config ---
@@ -56,6 +57,58 @@ if page == "Calculator":
             st.success("You have achieved or exceeded the golden ratio V-taper.")
 
     st.markdown("---")
+     # --- AI FITNESS COACH CHATBOT ---
+    from langchain.embeddings import HuggingFaceEmbeddings
+    from langchain.vectorstores import Chroma
+    from langchain.text_splitter import CharacterTextSplitter
+    from langchain.llms import HuggingFaceHub
+    from langchain.chains import RetrievalQA
+
+    st.markdown("## 🤖 Ask Your AI Fitness Coach")
+
+    with st.expander("📄 Upload your trusted knowledge file (or use default)"):
+        uploaded_file = st.file_uploader("Upload a .txt file with trusted Q&A (e.g. fitness_knowledge.txt)", type="txt")
+        if uploaded_file:
+            knowledge_text = uploaded_file.read().decode("utf-8")
+        else:
+            # Default example knowledge (replace with your content)
+            knowledge_text = '''
+            Q: How often should I work out?
+            A: Most people benefit from 3–5 sessions per week depending on goals.
+
+            Q: What's a good beginner workout?
+            A: Full-body workouts 3 times a week, focusing on compound movements.
+
+            Q: How much protein do I need?
+            A: About 1.6–2.2 grams per kg of body weight per day.
+
+            Q: Can I train every day?
+            A: You can, but it’s important to manage recovery, volume, and sleep.
+
+            Q: Should I bulk or cut first?
+            A: If you’re underweight, bulk. If you’re above 20% body fat, cut.
+            '''
+
+    @st.cache_resource
+    def setup_qa_chain(text):
+        splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+        docs = splitter.create_documents([text])
+
+        embeddings = HuggingFaceEmbeddings()
+        vectordb = Chroma.from_documents(docs, embedding=embeddings)
+        retriever = vectordb.as_retriever(search_kwargs={"k": 2})
+
+        llm = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.2", model_kwargs={"temperature": 0.5, "max_new_tokens": 200})
+        qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
+        return qa_chain
+
+    qa = setup_qa_chain(knowledge_text)
+
+    user_question = st.text_input("Ask a question about training, nutrition, or body proportions:")
+    if user_question:
+        with st.spinner("Thinking..."):
+            response = qa.run(user_question)
+        st.markdown(f"**CoachBot:** {response}")
     st.caption("Symmetriq is a physique symmetry calculator based on natural frame-based ideals. For educational and fitness guidance use only.")
 
 elif page == "Vision & Roadmap":
