@@ -1,5 +1,6 @@
 streamlit
-langchain[hub,embeddings]
+langchain
 chromadb
 sentence-transformers
 huggingface_hub
+transformers
