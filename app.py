@@ -1,4 +1,3 @@
-pip install langchain chromadb sentence-transformers huggingface_hub
 import streamlit as st
 
 # --- Page Config ---
