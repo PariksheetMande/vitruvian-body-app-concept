@@ -97,6 +97,8 @@ if page == "Calculator":
 
         embeddings = HuggingFaceEmbeddings()
 
+from chromadb.config import Settings
+        
         vectordb = Chroma.from_documents(
             docs,
             embedding=embeddings,
